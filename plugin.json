@@ -1,0 +1,17 @@
+{
+    "pluginType": "datasource",
+    "name": "Aion",
+
+    "type": "aion",
+    "serviceName": "AionDatasource",
+
+    "module": "app/plugins/datasource/aion/datasource",
+
+    "partials": {
+        "config": "app/plugins/datasource/aion/partials/config.html"
+    },
+
+    "defaultMatchFormat": "regex values",
+    "metrics": true,
+    "annotations": false
+}
