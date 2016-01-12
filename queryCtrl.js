@@ -5,18 +5,7 @@ define(['angular', 'lodash'], function(angular, _) {
 
     module.controller('AionDatasourceQueryCtrl', function($scope, uiSegmentSrv) {
         $scope.init = function () {
-        }
-
-        $scope.getObjectOptions = function () {
-            return {};
-        }
-
-        $scope.getIndexOptions = function () {
-            return {};
-        }
-
-        $scope.onChangeInternal = function () {
-            $scope.get_data();
+            $scope.target.groupByField = $scope.target.groupByField || "time";
         }
 
         $scope.init();

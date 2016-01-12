@@ -27,7 +27,7 @@ define(['angular', 'lodash', 'app/core/utils/datemath', './queryCtrl', './direct
                     });
                 }).then((data) => {
                     return _.map(data, (obj) => {
-                        return [obj[target.field], obj.time];
+                        return [obj[target.field], obj[target.groupByField]];
                     });
                 }).then((datapoints) => {
                     return {
