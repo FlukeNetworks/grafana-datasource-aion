@@ -9,17 +9,14 @@ define(['angular', 'lodash', 'app/core/utils/datemath', './queryCtrl', './direct
         }
 
         AionDatasource.prototype.query = function(options) {
-            var metricName = [options.targets[0].object, "value"].join(".");
-
             var queryParams = {
                 from: aionTime(options.rangeRaw.from),
                 to: aionTime(options.rangeRaw.to)
             };
             var promises = _.map(options.targets, (target) => {
-                var metricName = [target.object, target.field].join('.');
+                var metricName = [target.object, target.index + "=" + target.values, target.field].join('.');
 
                 return aionPromise(this, "/" + [target.object, target.index, target.values].join("/"), [], queryParams).then((response) => {
-                    console.log(response);
                     return response;
                 }).then((response) => response.data).then((data) => {
                     return _.filter(data, (obj) => {
@@ -52,6 +49,10 @@ define(['angular', 'lodash', 'app/core/utils/datemath', './queryCtrl', './direct
                     title: "Success"
                 };
             });
+        }
+
+        AionDatasource.prototype.getSchema = function () {
+            return aionPromise(this, "/schema", [], {});
         }
 
         //AionDatasource.prototype.listColumns = function(seriesName) {
