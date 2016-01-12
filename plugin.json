@@ -5,10 +5,15 @@
     "type": "aion",
     "serviceName": "AionDatasource",
 
-    "module": "app/plugins/datasource/aion/datasource",
+    "module": "plugins/aion/datasource",
 
     "partials": {
-        "config": "app/plugins/datasource/aion/partials/config.html"
+        "config": "public/plugins/aion/partials/config.html"
+    },
+
+    "staticRoot": {
+        "url": "aion",
+        "path": "."
     },
 
     "defaultMatchFormat": "regex values",
