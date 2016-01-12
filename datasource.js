@@ -9,43 +9,35 @@ define(['angular', 'lodash', 'app/core/utils/datemath', './queryCtrl', './direct
         }
 
         AionDatasource.prototype.query = function(options) {
+            var metricName = [options.targets[0].object, "value"].join(".");
+
             var queryParams = {
                 from: aionTime(options.rangeRaw.from),
                 to: aionTime(options.rangeRaw.to)
             };
             var promises = _.map(options.targets, (target) => {
-                return aionPromise(this, "/" + target.target, [], queryParams);
+                var metricName = [target.object, target.field].join('.');
+
+                return aionPromise(this, "/" + [target.object, target.index, target.values].join("/"), [], queryParams).then((response) => {
+                    console.log(response);
+                    return response;
+                }).then((response) => response.data).then((data) => {
+                    return _.filter(data, (obj) => {
+                        return ! _.isNull(obj[target.field]);
+                    });
+                }).then((data) => {
+                    return _.map(data, (obj) => {
+                        return [obj[target.field], obj.time];
+                    });
+                }).then((datapoints) => {
+                    return {
+                        target: metricName,
+                        datapoints: datapoints
+                    };
+                })
             });
             return $q.all(promises)
                 .then((results) => {
-                    return _.flatten(results, true);
-                }).then((responses) => {
-                    return _.map(responses, (response) => {
-                        return response.data;
-                    });
-                }).then((result) => {
-                    var series = _.map(result, (objs) => {
-                        var filteredObjs = _.filter(objs, (obj) => {
-                            return ! _.isNull(obj.value);
-                        });
-                        var arraysToReturn = _.map(filteredObjs, (obj) => {
-                            return [obj.value, obj.time];
-                        });
-                        return arraysToReturn;
-                    });
-                    series = _.reduce(series, (a, b) => {
-                        return a.concat(b);
-                    }, []);
-                    series = _.filter(series, (a) => {
-                        return _.size(a) > 0;
-                    });
-                    var toReturn = [{
-                        target: options.targets[0].target,
-                        datapoints: series
-                    }];
-                    console.log(toReturn);
-                    return toReturn;
-                }).then((results) => {
                     return {
                         data: results
                     };

@@ -4,13 +4,19 @@ define(['angular', 'lodash'], function(angular, _) {
     var module = angular.module('grafana.controllers');
 
     module.controller('AionDatasourceQueryCtrl', function($scope, uiSegmentSrv) {
-        $scope.target.target = $scope.target.target || 'select metric';
+        $scope.init = function () {
+        }
 
-        $scope.getOptions = function () {
+        $scope.getObjectOptions = function () {
+            return {};
+        }
+
+        $scope.getIndexOptions = function () {
             return {};
         }
 
         $scope.onChangeInternal = function () {
+            $scope.get_data();
         }
 
         $scope.init();
