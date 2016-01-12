@@ -24,6 +24,30 @@ define(['angular', 'lodash'], function(angular, _) {
             }
         }
 
+        $scope.fieldList = function (query, callback) {
+            var objectName = $scope.target.object;
+            if (!(_.isString(objectName))) {
+                return null;
+            }
+
+            if (query !== '') {
+                $scope.datasource.getSchema()
+                    .then((result) => result.data)
+                    .then(_.property(objectName))
+                    .then((schema) => {
+                        return _.map(schema, (v, k) => {
+                            return k;
+                        });
+                    })
+                    .then((fields) => {
+                        return _.filter(fields, (field) => field.startsWith(query));
+                    })
+                    .then(callback);
+            } else {
+                return null;
+            }
+        }
+
         $scope.init();
     });
 });
