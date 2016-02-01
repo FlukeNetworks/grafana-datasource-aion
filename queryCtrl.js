@@ -56,9 +56,11 @@ define(['angular', 'lodash'], function(angular, _) {
 
             if (query !== '') {
                 return $scope.datasource.getObjectConfig(objectName)
-                    .then((result) => result.data)
+                    .then(_.property("data"))
                     .then(_.property("indices"))
-                    .then(_.partial(_.map, _, _.property("name")))
+                    .then((indexDescriptors) => {
+                        return _.map(indexDescriptors, _.property("name"));
+                    })
                     .then((indexNames) => {
                         return _.filter(indexNames, (indexName) => indexName.startsWith(query));
                     })
