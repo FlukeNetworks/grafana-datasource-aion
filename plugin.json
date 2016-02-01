@@ -1,22 +1,12 @@
 {
-    "pluginType": "datasource",
     "name": "Aion",
+    "id": "aion",
+    "type": "datasource",
 
-    "type": "aion",
-    "serviceName": "AionDatasource",
+    "staticRoot": ".",
 
-    "module": "plugins/aion/datasource",
+    "config": "public/plugins/aion/partials/config.html",
 
-    "partials": {
-        "config": "public/plugins/aion/partials/config.html"
-    },
-
-    "staticRoot": {
-        "url": "aion",
-        "path": "."
-    },
-
-    "defaultMatchFormat": "regex values",
     "metrics": true,
     "annotations": false
 }

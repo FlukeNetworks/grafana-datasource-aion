@@ -48,6 +48,28 @@ define(['angular', 'lodash'], function(angular, _) {
             }
         }
 
+        $scope.indexList = function (query, callback) {
+            var objectName = $scope.target.object;
+            if (!(_.isString(objectName))) {
+                return null;
+            }
+
+            if (query !== '') {
+                return $scope.datasource.getObjectConfig(objectName)
+                    .then(_.property("data"))
+                    .then(_.property("indices"))
+                    .then((indexDescriptors) => {
+                        return _.map(indexDescriptors, _.property("name"));
+                    })
+                    .then((indexNames) => {
+                        return _.filter(indexNames, (indexName) => indexName.startsWith(query));
+                    })
+                    .then(callback);
+            } else {
+                return null;
+            }
+        }
+
         $scope.init();
     });
 });

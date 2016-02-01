@@ -1,14 +1,13 @@
-define(['angular', 'lodash', 'app/core/utils/datemath', './queryCtrl', './directives'], function(angular, _, dateMath) {
+define(['angular', 'lodash', 'app/core/utils/datemath', './queryCtrl'], function(angular, _, dateMath) {
     'use strict';
 
     var module = angular.module('grafana.services');
 
-    module.factory('AionDatasource', function($q, backendSrv, templateSrv) {
-        function AionDatasource(datasource) {
-            this.url = datasource.url
-        }
+    /** @ngInject */
+    function AionDatasource(instanceSettings, $q, backendSrv, templateSrv) {
+        this.url = instanceSettings.url
 
-        AionDatasource.prototype.query = function(options) {
+        this.query = function(options) {
             var queryParams = {
                 from: aionTime(options.rangeRaw.from),
                 to: aionTime(options.rangeRaw.to)
@@ -41,7 +40,7 @@ define(['angular', 'lodash', 'app/core/utils/datemath', './queryCtrl', './direct
                 });
         }
 
-        AionDatasource.prototype.testDatasource = function() {
+        this.testDatasource = function() {
             return aionPromise(this, "/version", [], {}).then((version) => {
                 return {
                     status: "success",
@@ -51,8 +50,12 @@ define(['angular', 'lodash', 'app/core/utils/datemath', './queryCtrl', './direct
             });
         }
 
-        AionDatasource.prototype.getSchema = function () {
+        this.getSchema = function () {
             return aionPromise(this, "/schema", [], {});
+        }
+
+        this.getObjectConfig = function (name) {
+            return aionPromise(this, "/schema/" + name, [], {});
         }
 
         //AionDatasource.prototype.listColumns = function(seriesName) {
@@ -105,7 +108,7 @@ define(['angular', 'lodash', 'app/core/utils/datemath', './queryCtrl', './direct
             }
             return date.toISOString();
         }
+    }
 
-        return AionDatasource;
-    });
+    return AionDatasource;
 });
