@@ -7,18 +7,34 @@ define(['angular', 'lodash', 'app/core/utils/datemath', './queryCtrl'], function
     function AionDatasource(instanceSettings, $q, backendSrv, templateSrv) {
         this.url = instanceSettings.url;
 
+        function aionField(obj, target) {
+            var field = obj[target.field];
+            if (_.isNull(field)) {
+                return null;
+            }
+
+            if (_.isUndefined(target.fieldIndex) || _.isNull(target.fieldIndex)) {
+                return field;
+            }
+            if (_.isString(target.fieldIndex) && _.size(target.fieldIndex) <= 0) {
+                return field;
+            }
+
+            return field[target.fieldIndex];
+        }
+
         this.aionQuery = function aionQuery(queryParams, target) {
             return aionPromise(this, "/" + [target.object, target.index, target.values].join("/"), [], queryParams).then((response) => {
                 return response;
             }).then((response) => response.data).then((data) => {
                 return _.filter(data, (obj) => {
-                    return ! _.isNull(obj[target.field]);
+                    return ! _.isNull(aionField(obj, target));
                 });
             });
         }
 
         function getMetricName(target) {
-            return [target.object, target.index + "=" + target.values, target.field].join('.');
+            return [target.object, target.index + "=" + target.values, target.field, target.fieldIndex].join('.');
         }
 
         this.query = function(options) {
@@ -28,7 +44,7 @@ define(['angular', 'lodash', 'app/core/utils/datemath', './queryCtrl'], function
                 return this.aionQuery(queryParams, target)
                     .then((data) => {
                         return _.map(data, (obj) => {
-                            return [obj[target.field], obj[target.groupByField]];
+                            return [aionField(obj, target), obj[target.groupByField]];
                         });
                     }).then((datapoints) => {
                         return {
