@@ -8,5 +8,5 @@
     "config": "public/plugins/aion/partials/config.html",
 
     "metrics": true,
-    "annotations": false
+    "annotations": true
 }

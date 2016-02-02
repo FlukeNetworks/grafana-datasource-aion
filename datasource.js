@@ -5,38 +5,70 @@ define(['angular', 'lodash', 'app/core/utils/datemath', './queryCtrl'], function
 
     /** @ngInject */
     function AionDatasource(instanceSettings, $q, backendSrv, templateSrv) {
-        this.url = instanceSettings.url
+        this.url = instanceSettings.url;
+
+        this.aionQuery = function aionQuery(queryParams, target) {
+            return aionPromise(this, "/" + [target.object, target.index, target.values].join("/"), [], queryParams).then((response) => {
+                return response;
+            }).then((response) => response.data).then((data) => {
+                return _.filter(data, (obj) => {
+                    return ! _.isNull(obj[target.field]);
+                });
+            });
+        }
+
+        function getMetricName(target) {
+            return [target.object, target.index + "=" + target.values, target.field].join('.');
+        }
 
         this.query = function(options) {
-            var queryParams = {
-                from: aionTime(options.rangeRaw.from),
-                to: aionTime(options.rangeRaw.to)
-            };
+            var queryParams = aionQueryParameters(options);
             var promises = _.map(options.targets, (target) => {
-                var metricName = [target.object, target.index + "=" + target.values, target.field].join('.');
-
-                return aionPromise(this, "/" + [target.object, target.index, target.values].join("/"), [], queryParams).then((response) => {
-                    return response;
-                }).then((response) => response.data).then((data) => {
-                    return _.filter(data, (obj) => {
-                        return ! _.isNull(obj[target.field]);
+                var metricName = getMetricName(target);
+                return this.aionQuery(queryParams, target)
+                    .then((data) => {
+                        return _.map(data, (obj) => {
+                            return [obj[target.field], obj[target.groupByField]];
+                        });
+                    }).then((datapoints) => {
+                        return {
+                            target: metricName,
+                            datapoints: datapoints,
+                        };
                     });
-                }).then((data) => {
-                    return _.map(data, (obj) => {
-                        return [obj[target.field], obj[target.groupByField]];
-                    });
-                }).then((datapoints) => {
-                    return {
-                        target: metricName,
-                        datapoints: datapoints
-                    };
-                })
             });
             return $q.all(promises)
                 .then((results) => {
                     return {
                         data: results
                     };
+                });
+        }
+
+        function aionStringify(value) {
+            if (_.isString(value)) {
+                return value;
+            }
+            return JSON.stringify(value);
+        }
+
+        this.annotationQuery = function(options) {
+            console.log(options);
+            var queryParams = aionQueryParameters(options);
+            return this.aionQuery(queryParams, options.annotation)
+                .then((data) => {
+                    return _.map(data, (obj) => {
+                        return {
+                            annotation: options.annotation,
+                            time: obj[options.annotation.groupByField],
+                            title: getMetricName(options.annotation),
+                            tags: "",
+                            text: aionStringify(obj[options.annotation.field]),
+                        };
+                    });
+                }).then((annotations) => {
+                    console.log(annotations);
+                    return annotations;
                 });
         }
 
@@ -107,6 +139,13 @@ define(['angular', 'lodash', 'app/core/utils/datemath', './queryCtrl'], function
                 }
             }
             return date.toISOString();
+        }
+
+        function aionQueryParameters(options) {
+            return {
+                from: aionTime(options.rangeRaw.from),
+                to: aionTime(options.rangeRaw.to)
+            };
         }
     }
 

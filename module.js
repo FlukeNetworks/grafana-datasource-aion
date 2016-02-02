@@ -8,6 +8,12 @@ define(['./datasource'], function (aionDatasource) {
         };
     }
 
+    function annotationsQueryEditor() {
+        return {
+            templateUrl: "public/plugins/aion/partials/annotations.editor.html",
+        };
+    }
+
     function configView() {
         return {
             templateUrl: "public/plugins/aion/partials/config.html",
@@ -18,5 +24,6 @@ define(['./datasource'], function (aionDatasource) {
         Datasource: aionDatasource,
         metricsQueryEditor: metricsQueryEditor,
         configView: configView,
+        annotationsQueryEditor: annotationsQueryEditor,
     };
 });
